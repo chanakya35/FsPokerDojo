@@ -213,7 +213,19 @@ and A for Ace
 // -----------------------------------------------------------------------------
 let parseRank charRank =
    match charRank with
-   | '1' -> Rank.Squared3
+   | '2' -> Rank.Two
+   | '3' -> Rank.Three
+   | '4' -> Rank.Four
+   | '5' -> Rank.Five
+   | '6' -> Rank.Six
+   | '7' -> Rank.Seven
+   | '8' -> Rank.Eight
+   | '9' -> Rank.Nine
+   | 'T' | 't' -> Rank.Ten
+   | 'J' | 'j' -> Rank.Jack
+   | 'Q' | 'q' -> Rank.Queen
+   | 'K' | 'k' -> Rank.King
+   | 'A' | 'a' -> Rank.Ace
    | _ -> failwith "Invalid rank."
 
 testFunc "parseRank success numeric" parseRank '5'
