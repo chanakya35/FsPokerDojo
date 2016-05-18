@@ -379,17 +379,17 @@ use the value.  Very slick!
 // -----------------------------------------------------------------------------
 let cardsToHand (cards:'a[]) =
    match cards.Length with
-   // --> add case when length is 5, return a 5-tuple of cards
+   | 5 -> cards.[0], cards.[1], cards.[2], cards.[3], cards.[4]
    | _ -> failwith "Invalid hand size."
 
-testFunc "cardsToHand success" cardsToHand [| (Rank.Squared1, Suit.Suit1); 
-                                              (Rank.Squared1, Suit.Suit2);
-                                              (Rank.Squared2, Suit.Suit1);
-                                              (Rank.Squared2, Suit.Suit2);
-                                              (Rank.Squared3, Suit.Suit1); |]
+testFunc "cardsToHand success" cardsToHand [| (Rank.Ace, Suit.Clubs); 
+                                              (Rank.Two, Suit.Diamonds);
+                                              (Rank.Three, Suit.Hearts);
+                                              (Rank.Four, Suit.Spades);
+                                              (Rank.Five, Suit.Spades); |]
 testFunc "cardsToHand invalid size"
-         cardsToHand [| (Rank.Squared1, Suit.Suit1); 
-                        (Rank.Squared2, Suit.Suit2); |]
+         cardsToHand [| (Rank.Ace, Suit.Spades); 
+                        (Rank.Three, Suit.Hearts); |]
 
 (*
 We can use String.Split to get an array of card tokens, and just send them to
