@@ -97,19 +97,19 @@ Eight, Nine, Ten, Jack, Queen, King, Ace
 // Rank as an isolated concept
 // -----------------------------------------------------------------------------
 type Rank =
-   | Two
-   | Three
-   | Four
-   | Five
-   | Six
-   | Seven
-   | Eight
-   | Nine
-   | Ten
-   | Jack
-   | Queen
-   | King
-   | Ace
+   | Two = 1
+   | Three = 2
+   | Four = 3
+   | Five = 4
+   | Six = 5
+   | Seven = 6
+   | Eight = 7
+   | Nine = 8
+   | Ten = 9
+   | Jack = 10
+   | Queen = 11
+   | King = 12
+   | Ace = 13
 
 (*
 A card has both a Suit and a Value, never just one or the other.  This is a
@@ -191,11 +191,11 @@ We will use C for clubs, S for spades, H for hearts, and D for diamonds.
 // 'C', 'S', 'H', 'D'
 // -----------------------------------------------------------------------------
 let parseSuit charSuit =
-   match charSuit with
-   | 'c' | 'C' -> Suit.Clubs
-   | 's' | 'S' -> Suit.Spades
-   | 'h' | 'H' -> Suit.Hearts
-   | 'd' | 'D' -> Suit.Diamonds
+   match System.Char.ToUpper(charSuit) with
+   | 'C' -> Suit.Clubs
+   | 'S' -> Suit.Spades
+   | 'H' -> Suit.Hearts
+   | 'D' -> Suit.Diamonds
    | _ -> failwith "Invalid suit." // wildcard match throws an error
 
 testFunc "parseSuit success" parseSuit 'c'
@@ -221,11 +221,11 @@ let parseRank charRank =
    | '7' -> Rank.Seven
    | '8' -> Rank.Eight
    | '9' -> Rank.Nine
-   | 'T' | 't' -> Rank.Ten
-   | 'J' | 'j' -> Rank.Jack
-   | 'Q' | 'q' -> Rank.Queen
-   | 'K' | 'k' -> Rank.King
-   | 'A' | 'a' -> Rank.Ace
+   | 'T' -> Rank.Ten
+   | 'J' -> Rank.Jack
+   | 'Q' -> Rank.Queen
+   | 'K' -> Rank.King
+   | 'A' -> Rank.Ace
    | _ -> failwith "Invalid rank."
 
 testFunc "parseRank success numeric" parseRank '5'
@@ -244,16 +244,14 @@ is invalid.
 // case sensitive.
 // -----------------------------------------------------------------------------
 let parseCard (strCard:string) =
-   // --> add a ToUpper so you can simplify above parsing!
-   let chars = strCard.   ToCharArray()
+   let chars = strCard.ToUpper().ToCharArray()
    match chars with
    // here pattern matching is seeing if the chars array can be placed into a
    // two-item array.  If it can, it will name them charValue and charSuit,
    // which you can use when it's appropriate!  Handy!
    | [| charRank; charSuit |] ->
-      // --> call the parseValue and parseSuit functions
-      let rank = Rank.Squared1
-      let suit = Suit.Suit2
+      let rank = parseRank charRank
+      let suit = parseSuit charSuit
       rank,suit
    // array isn't two items long
    | _ -> failwith "Invalid card syntax."
@@ -275,15 +273,10 @@ like "2C 3C 4C 5C 6C" and converting it into a Hand, which will be a 5-tuple of
 Cards.
 *)
 
-// --> make sure your Card type from above matches, and then delete this line
-//     and switch all future Code from Card' to just Card
-type Card' = Rank * Suit
-// --> fix the hand type
-
 // -----------------------------------------------------------------------------
 // A hand is five cards
 // -----------------------------------------------------------------------------
-type Hand = bool * double
+type Hand = Card * Card * Card * Card * Card
 
 (*
 F# has several built in collection types including :
@@ -312,14 +305,18 @@ a duplicate!
 // -----------------------------------------------------------------------------
 let areDups cardArray =
    let uniqueCards = Array.groupBy id cardArray
-   // --> functions return their last expression.  Here, we should return
-   //     whether the uniqueCards length is less than the cardArray length
-   true
+   uniqueCards.Length < cardArray.Length
+
+(* Different key selector experiment
+let myKeySelector cardArray =
+    Array.groupBy fst cardArray
+myKeySelector [| (1,2); (1,3); (2,3); (2,4); (4,5) |]
+*)
    
-testFunc "areDups all unique" areDups [| (Rank.Squared1,Suit.Suit1);
-                                         (Rank.Squared1,Suit.Suit2) |]
-testFunc "areDups duplicates" areDups [| (Rank.Squared1,Suit.Suit1);
-                                         (Rank.Squared1,Suit.Suit1) |]
+testFunc "areDups all unique" areDups [| (Rank.Two,Suit.Clubs);
+                                         (Rank.Two,Suit.Hearts) |]
+testFunc "areDups duplicates" areDups [| (Rank.Ace,Suit.Diamonds);
+                                         (Rank.Ace,Suit.Diamonds) |]
 
 (*
 You can have functions which take a "Generic" type.  For instance -- if you
