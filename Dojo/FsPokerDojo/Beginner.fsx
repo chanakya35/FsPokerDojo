@@ -20,9 +20,6 @@ program by giving better error handling using computational expressions and
 Railway Oriented Programming, and better testing using FsCheck and xUnit.
 *)
 
-// --> delete this error when you understand to look for tasks! :)
-failwith( "Any time you see '-->', this is a task for you!" )
-
 (*
 Freebie: Simple testing function -- we'll get more in-depth later
 ################################################################################
@@ -72,14 +69,14 @@ DU choices do not have to have any data, and are like an unnumbered enum.
 
 There are four suits: Clubs, Spades, Hearts, and Diamonds. *)
 
-// --> Fix and complete the Suit DU.
-
 // -----------------------------------------------------------------------------
 // Suits as an isolated concept
 // -----------------------------------------------------------------------------
 type Suit =
-   | Suit1
-   | Suit2
+   | Clubs
+   | Diamonds
+   | Spades
+   | Hearts
 
 (*
 Enum syntax is like the empty DU, except each holds an integer value.
@@ -100,9 +97,19 @@ Eight, Nine, Ten, Jack, Queen, King, Ace
 // Rank as an isolated concept
 // -----------------------------------------------------------------------------
 type Rank =
-   | Squared1 = 1
-   | Squared2 = 4
-   | Squared3 = 9
+   | Two
+   | Three
+   | Four
+   | Five
+   | Six
+   | Seven
+   | Eight
+   | Nine
+   | Ten
+   | Jack
+   | Queen
+   | King
+   | Ace
 
 (*
 A card has both a Suit and a Value, never just one or the other.  This is a
@@ -143,12 +150,10 @@ However, for us, our tuple portions aren't of the same type, so we don't need to
 worry about it! :) Our card type will be a tuple with a Rank and a Suit.
 *)
 
-// --> Fix the Card type definition
-
 // -----------------------------------------------------------------------------
 // Card is a Rank and Suit
 // -----------------------------------------------------------------------------
-type Card = int * float * bool
+type Card = Rank * Suit
 
 (*
 Now we'll have a function which will parse a character and return the valid
@@ -181,17 +186,16 @@ let isFavoriteRank rank =
 We will use C for clubs, S for spades, H for hearts, and D for diamonds.
 *)
 
-// --> fix and complete the function
-
 // -----------------------------------------------------------------------------
 // Parse a character representation of a suit into a Suit.  Valid suits are:
 // 'C', 'S', 'H', 'D'
 // -----------------------------------------------------------------------------
 let parseSuit charSuit =
    match charSuit with
-   | 'q'                 // not handling 'q' means it is handled below
-   | 'Q' -> Suit.Suit1   // 'Q' (and 'q') are handled here
-   | 'W' -> Suit.Suit2
+   | 'c' | 'C' -> Suit.Clubs
+   | 's' | 'S' -> Suit.Spades
+   | 'h' | 'H' -> Suit.Hearts
+   | 'd' | 'D' -> Suit.Diamonds
    | _ -> failwith "Invalid suit." // wildcard match throws an error
 
 testFunc "parseSuit success" parseSuit 'c'
