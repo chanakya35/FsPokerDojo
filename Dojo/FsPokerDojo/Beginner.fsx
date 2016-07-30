@@ -18,12 +18,7 @@ The INTERMEDIATE script takes over from there -- the beginner program is simply
 given, already working, and steps will work toward the improvement of the
 program by giving better error handling using computational expressions and
 Railway Oriented Programming, and better testing using FsCheck and xUnit.
-
-The FINAL script shows my personal implementation of all intermediate tasks.
 *)
-
-// --> delete this error when you understand to look for tasks! :)
-failwith( "Any time you see '-->', this is a task for you!" )
 
 (*
 Freebie: Simple testing function -- we'll get more in-depth later
@@ -74,14 +69,14 @@ DU choices do not have to have any data, and are like an unnumbered enum.
 
 There are four suits: Clubs, Spades, Hearts, and Diamonds. *)
 
-// --> Fix and complete the Suit DU.
-
 // -----------------------------------------------------------------------------
 // Suits as an isolated concept
 // -----------------------------------------------------------------------------
 type Suit =
-   | Suit1
-   | Suit2
+   | Clubs
+   | Diamonds
+   | Spades
+   | Hearts
 
 (*
 Enum syntax is like the empty DU, except each holds an integer value.
@@ -102,9 +97,19 @@ Eight, Nine, Ten, Jack, Queen, King, Ace
 // Rank as an isolated concept
 // -----------------------------------------------------------------------------
 type Rank =
-   | Squared1 = 1
-   | Squared2 = 4
-   | Squared3 = 9
+   | Two = 1
+   | Three = 2
+   | Four = 3
+   | Five = 4
+   | Six = 5
+   | Seven = 6
+   | Eight = 7
+   | Nine = 8
+   | Ten = 9
+   | Jack = 10
+   | Queen = 11
+   | King = 12
+   | Ace = 13
 
 (*
 A card has both a Suit and a Value, never just one or the other.  This is a
@@ -145,12 +150,10 @@ However, for us, our tuple portions aren't of the same type, so we don't need to
 worry about it! :) Our card type will be a tuple with a Rank and a Suit.
 *)
 
-// --> Fix the Card type definition
-
 // -----------------------------------------------------------------------------
 // Card is a Rank and Suit
 // -----------------------------------------------------------------------------
-type Card = int * float * bool
+type Card = Rank * Suit
 
 (*
 Now we'll have a function which will parse a character and return the valid
@@ -183,17 +186,16 @@ let isFavoriteRank rank =
 We will use C for clubs, S for spades, H for hearts, and D for diamonds.
 *)
 
-// --> fix and complete the function
-
 // -----------------------------------------------------------------------------
 // Parse a character representation of a suit into a Suit.  Valid suits are:
 // 'C', 'S', 'H', 'D'
 // -----------------------------------------------------------------------------
 let parseSuit charSuit =
-   match charSuit with
-   | 'q'                 // not handling 'q' means it is handled below
-   | 'Q' -> Suit.Suit1   // 'Q' (and 'q') are handled here
-   | 'W' -> Suit.Suit2
+   match System.Char.ToUpper(charSuit) with
+   | 'C' -> Suit.Clubs
+   | 'S' -> Suit.Spades
+   | 'H' -> Suit.Hearts
+   | 'D' -> Suit.Diamonds
    | _ -> failwith "Invalid suit." // wildcard match throws an error
 
 testFunc "parseSuit success" parseSuit 'c'
@@ -211,7 +213,19 @@ and A for Ace
 // -----------------------------------------------------------------------------
 let parseRank charRank =
    match charRank with
-   | '1' -> Rank.Squared3
+   | '2' -> Rank.Two
+   | '3' -> Rank.Three
+   | '4' -> Rank.Four
+   | '5' -> Rank.Five
+   | '6' -> Rank.Six
+   | '7' -> Rank.Seven
+   | '8' -> Rank.Eight
+   | '9' -> Rank.Nine
+   | 'T' -> Rank.Ten
+   | 'J' -> Rank.Jack
+   | 'Q' -> Rank.Queen
+   | 'K' -> Rank.King
+   | 'A' -> Rank.Ace
    | _ -> failwith "Invalid rank."
 
 testFunc "parseRank success numeric" parseRank '5'
@@ -230,16 +244,14 @@ is invalid.
 // case sensitive.
 // -----------------------------------------------------------------------------
 let parseCard (strCard:string) =
-   // --> add a ToUpper so you can simplify above parsing!
-   let chars = strCard.   ToCharArray()
+   let chars = strCard.ToUpper().ToCharArray()
    match chars with
    // here pattern matching is seeing if the chars array can be placed into a
    // two-item array.  If it can, it will name them charValue and charSuit,
    // which you can use when it's appropriate!  Handy!
    | [| charRank; charSuit |] ->
-      // --> call the parseValue and parseSuit functions
-      let rank = Rank.Squared1
-      let suit = Suit.Suit2
+      let rank = parseRank charRank
+      let suit = parseSuit charSuit
       rank,suit
    // array isn't two items long
    | _ -> failwith "Invalid card syntax."
@@ -261,15 +273,10 @@ like "2C 3C 4C 5C 6C" and converting it into a Hand, which will be a 5-tuple of
 Cards.
 *)
 
-// --> make sure your Card type from above matches, and then delete this line
-//     and switch all future Code from Card' to just Card
-type Card' = Rank * Suit
-// --> fix the hand type
-
 // -----------------------------------------------------------------------------
 // A hand is five cards
 // -----------------------------------------------------------------------------
-type Hand = bool * double
+type Hand = Card * Card * Card * Card * Card
 
 (*
 F# has several built in collection types including :
@@ -298,14 +305,18 @@ a duplicate!
 // -----------------------------------------------------------------------------
 let areDups cardArray =
    let uniqueCards = Array.groupBy id cardArray
-   // --> functions return their last expression.  Here, we should return
-   //     whether the uniqueCards length is less than the cardArray length
-   true
+   uniqueCards.Length < cardArray.Length
+
+(* Different key selector experiment
+let myKeySelector cardArray =
+    Array.groupBy fst cardArray
+myKeySelector [| (1,2); (1,3); (2,3); (2,4); (4,5) |]
+*)
    
-testFunc "areDups all unique" areDups [| (Rank.Squared1,Suit.Suit1);
-                                         (Rank.Squared1,Suit.Suit2) |]
-testFunc "areDups duplicates" areDups [| (Rank.Squared1,Suit.Suit1);
-                                         (Rank.Squared1,Suit.Suit1) |]
+testFunc "areDups all unique" areDups [| (Rank.Two,Suit.Clubs);
+                                         (Rank.Two,Suit.Hearts) |]
+testFunc "areDups duplicates" areDups [| (Rank.Ace,Suit.Diamonds);
+                                         (Rank.Ace,Suit.Diamonds) |]
 
 (*
 You can have functions which take a "Generic" type.  For instance -- if you
@@ -368,17 +379,17 @@ use the value.  Very slick!
 // -----------------------------------------------------------------------------
 let cardsToHand (cards:'a[]) =
    match cards.Length with
-   // --> add case when length is 5, return a 5-tuple of cards
+   | 5 -> cards.[0], cards.[1], cards.[2], cards.[3], cards.[4]
    | _ -> failwith "Invalid hand size."
 
-testFunc "cardsToHand success" cardsToHand [| (Rank.Squared1, Suit.Suit1); 
-                                              (Rank.Squared1, Suit.Suit2);
-                                              (Rank.Squared2, Suit.Suit1);
-                                              (Rank.Squared2, Suit.Suit2);
-                                              (Rank.Squared3, Suit.Suit1); |]
+testFunc "cardsToHand success" cardsToHand [| (Rank.Ace, Suit.Clubs); 
+                                              (Rank.Two, Suit.Diamonds);
+                                              (Rank.Three, Suit.Hearts);
+                                              (Rank.Four, Suit.Spades);
+                                              (Rank.Five, Suit.Spades); |]
 testFunc "cardsToHand invalid size"
-         cardsToHand [| (Rank.Squared1, Suit.Suit1); 
-                        (Rank.Squared2, Suit.Suit2); |]
+         cardsToHand [| (Rank.Ace, Suit.Spades); 
+                        (Rank.Three, Suit.Hearts); |]
 
 (*
 We can use String.Split to get an array of card tokens, and just send them to
@@ -722,15 +733,31 @@ testFunc "analyzeHand HighCard" analyzeHand <| parseHand "kS qD tC 4H 2C"
 
 (*
 You did it!  At this point, you can take hands as shown in the tests above and
-compare their analyses to determine which hand is better:
-
-   let hand1Score = analyzeHand <| parseHand "kS kD kC kH 2C"
-   let hand2Score = analyzeHand <| parseHand "qS qD qC qH aC"
-   printfn "%A" (max hand1Score hand2Score)
-   // yes, 4 Kings with a 2 kicker beats 4 Queens with an Ace kicker!
+easily compare their analyses to determine which hand is better -- F# gives the
+comparison for free using the max function, or any of the collection Sort
+functions.  F# also gives for free the ability to print the analysis, as seen
+in the above analyzeHand tests.
 
 Hopefully you had fun and learned something about F#.  When you're ready,
 compare your changes against the intermediate script.  The only change there is
 that all tests have been moved into a Test module at the end of the script,
 because one of the intermediate script tasks is to improve testing capability.
+
+
+Challenges
+################################################################################
+
+Challenge 1: Create a function which takes two string hand representations and
+prints out the better scoring hand.
+
+Challenge 2: The solution includes a file, hands.txt which lists 10,000 hands.
+Find the top 25 hands.  Compare against the Organizer's Notes.
+
+Challenge 3: Give a better hand-analysis reporting function which when given
+two hands, only prints out enough of the analysis as is necessary.
+  e.g. Comparing "aH kH qH jH tH" and "2C 3H 4D 7S 7H" would say
+                 RoyalFlush beats OnePair
+  e.g. Comparing "aH aD 2H 3H 4H" and "aC aS 2C 3C 5C" would say
+                 OnePair Ace with Kicker of Five beats
+                 OnePair Ace with Kicker of Four
 *)
